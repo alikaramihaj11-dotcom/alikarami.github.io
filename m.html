@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MOVIELAND | جزئیات فیلم و انیمیشن</title>
+    <meta name="theme-color" content="#0a0a12">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#0a0a12;font-family:system-ui,'Segoe UI',sans-serif;color:#fff;line-height:1.5}
+        body.light-mode{background:#f5f5f0;color:#1a1a2e}
+        body.light-mode .header,body.light-mode .detail-card,body.light-mode .comments-section,body.light-mode .episodes-section{background:rgba(240,240,240,0.95);color:#1a1a2e}
+        body.light-mode .info-box,body.light-mode .meta span,body.light-mode .episode-card{background:rgba(200,200,200,0.5);color:#1a1a2e}
+        body.light-mode .description{color:#333}
+        
+        .header{position:sticky;top:0;z-index:100;background:rgba(10,10,18,0.92);backdrop-filter:blur(12px);padding:12px 24px;border-bottom:1px solid rgba(229,50,60,0.2)}
+        .header-in{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+        .logo{display:flex;align-items:center;gap:6px;cursor:pointer}
+        .logo-text{font-size:22px;font-weight:800;background:linear-gradient(135deg,#fff,#e5323c);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .nav-buttons{display:flex;gap:10px;align-items:center}
+        .back-btn{background:rgba(25,28,45,0.8);padding:8px 20px;border-radius:60px;cursor:pointer;font-size:13px;text-decoration:none;color:#fff;display:inline-flex;align-items:center;gap:6px;transition:0.2s}
+        .back-btn:hover{background:#e5323c;transform:translateX(-4px)}
+        .theme-toggle{background:rgba(25,28,45,0.8);border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;color:#fff;font-size:16px;transition:0.2s}
+        .theme-toggle:hover{background:#e5323c;transform:rotate(15deg)}
+        
+        .detail-container{max-width:1200px;margin:40px auto;padding:0 20px}
+        .detail-card{background:rgba(18,20,32,0.6);backdrop-filter:blur(8px);border-radius:32px;padding:30px;border:1px solid rgba(229,50,60,0.15);display:grid;grid-template-columns:300px 1fr;gap:35px}
+        .poster-img{width:100%;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+        .info-box{background:rgba(25,28,45,0.6);border-radius:24px;padding:18px;text-align:center;margin-top:20px}
+        .info-box .rating{font-size:28px;color:#ffc107;font-weight:700}
+        .movie-title{font-size:28px;font-weight:800;background:linear-gradient(135deg,#fff,#e5323c);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:8px}
+        .meta{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0;padding:12px 0;border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08)}
+        .meta span{background:rgba(25,28,45,0.6);padding:5px 14px;border-radius:40px;font-size:12px}
+        .description{margin:20px 0;color:#cbd5f0;line-height:1.8;font-size:14px}
+        
+        .user-rating-area{margin-top:20px;text-align:center;padding-top:15px;border-top:1px solid rgba(255,255,255,0.08)}
+        .stars-container{display:flex;justify-content:center;gap:8px;margin:10px 0;direction:ltr}
+        .star-rating{cursor:pointer;font-size:24px;color:#555;transition:0.1s}
+        .star-rating:hover{transform:scale(1.1)}
+        .star-rating.active{color:#ffc107}
+        .watch-btn{background:linear-gradient(135deg,#e5323c,#ff6b6b);padding:12px 35px;border-radius:60px;border:none;color:#fff;font-weight:700;cursor:pointer;margin-top:15px;transition:0.2s}
+        .watch-btn:hover{transform:scale(1.02);box-shadow:0 4px 15px rgba(229,50,60,0.4)}
+        .add-fav{background:rgba(255,255,255,0.08);padding:12px 25px;border-radius:60px;border:none;color:#fff;cursor:pointer;margin-right:10px;transition:0.2s}
+        .add-fav:hover{background:rgba(229,50,60,0.3)}
+        .add-fav.active{background:#e5323c;color:#fff}
+        
+        .comments-section{margin-top:30px;background:rgba(18,20,32,0.4);backdrop-filter:blur(4px);border-radius:28px;padding:20px;border:1px solid rgba(229,50,60,0.1)}
+        .comments-section h3{margin-bottom:15px;color:#e5323c}
+        .comment-form{display:flex;gap:12px;margin-bottom:25px}
+        .comment-form input{flex:1;background:rgba(25,28,45,0.8);border-radius:60px;padding:12px 18px;border:1px solid rgba(255,255,255,0.1);color:#fff;outline:none}
+        .comment-form input:focus{border-color:#e5323c}
+        .comment-form button{background:#e5323c;border:none;padding:0 25px;border-radius:60px;color:#fff;cursor:pointer;font-weight:600;transition:0.2s}
+        .comment-form button:hover{background:#ff6b6b}
+        .comment-item{background:rgba(25,28,45,0.4);border-radius:20px;padding:15px;margin-bottom:12px}
+        .comment-user{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}
+        .comment-user strong{color:#e5323c}
+        .comment-date{color:#8892b0;font-size:11px}
+        .comment-text{font-size:14px;line-height:1.5}
+        
+        .loading,.error{text-align:center;padding:80px;color:#8892b0;font-size:16px}
+        footer{text-align:center;padding:30px;border-top:1px solid rgba(255,255,255,0.05);color:#5a6378;font-size:12px;margin-top:30px}
+        
+        @media(max-width:700px){
+            .detail-card{grid-template-columns:1fr;gap:20px}
+            .movie-title{font-size:22px}
+            .meta span{font-size:10px}
+            .comment-form{flex-direction:column}
+            .comment-form button{padding:12px}
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-in">
+        <div class="logo" onclick="location.href='index.html'">
+            <span style="font-size:24px">🎬</span>
+            <span class="logo-text">MOVIELAND</span>
+        </div>
+        <div class="nav-buttons">
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+            <a href="index.html" class="back-btn">← بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+</div>
+
+<div class="detail-container" id="detailContainer"><div class="loading">⏳ در حال دریافت اطلاعات...</div></div>
+<footer>© 2024 MOVIELAND | تمامی حقوق محفوظ است</footer>
+
+<script>
+    // ========== API های هماهنگ با صفحه اصلی (بر اساس اطلاعات جدید) ==========
+    const ANIMATION_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/animation?page=';
+    const ACTION_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/action?page=';
+    const ADVENTURE_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/adventure?page=';
+    const COMEDY_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/comedy?page=';
+    const CRIME_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/crime?page=';
+    const DRAMA_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/drama?page=';
+    const FAMILY_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/family?page=';
+    const HISTORY_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/history?page=';
+    const HORROR_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/horror?page=';
+    const SCI_FI_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/sci_fi?page=';
+    const ROMANCE_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/romance?page=';
+    const THRILLER_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/thriller?page=';
+    
+    // تعداد صفحات هر ژانر (هماهنگ با ایندکس)
+    const TOTAL_PAGES = {
+        animation: 51,
+        action: 119,
+        adventure: 79,
+        comedy: 89,
+        crime: 59,
+        drama: 170,
+        family: 55,
+        history: 15,
+        horror: 31,
+        'sci-fi': 24,
+        romance: 23,
+        thriller: 58
+    };
+    
+    const CDN_BASE = 'https://thumb.upera.tv/thumb?w=675&q=90&h=1000&src=https://thumb.upera.tv/s3/posters/';
+    
+    // ذخیره‌سازی محلی
+    let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+    let userRatings = JSON.parse(localStorage.getItem("userRatings") || "{}");
+    let comments = JSON.parse(localStorage.getItem("comments") || "{}");
+    
+    function getParam(param) { return new URLSearchParams(window.location.search).get(param); }
+    
+    function getFullImageUrl(posterPath) { 
+        if (!posterPath) return null; 
+        if (posterPath.startsWith('http')) return posterPath; 
+        return CDN_BASE + posterPath; 
+    }
+    
+    async function fetchAPI(url) {
+        try { 
+            const res = await fetch(url); 
+            if (!res.ok) throw new Error(`HTTP ${res.status}`); 
+            return await res.json(); 
+        } catch(err) { 
+            console.error('Fetch error:', err); 
+            return null; 
+        }
+    }
+    
+    // آدرس‌های API برای دسترسی
+    const API_URLS = {
+        animation: ANIMATION_API,
+        action: ACTION_API,
+        adventure: ADVENTURE_API,
+        comedy: COMEDY_API,
+        crime: CRIME_API,
+        drama: DRAMA_API,
+        family: FAMILY_API,
+        history: HISTORY_API,
+        horror: HORROR_API,
+        'sci-fi': SCI_FI_API,
+        romance: ROMANCE_API,
+        thriller: THRILLER_API
+    };
+    
+    // جستجوی فیلم در تمام صفحات ژانر
+    async function fetchMovieById(id, genre, type) {
+        if (type === 'series') {
+            return null;
+        }
+        
+        const url = API_URLS[genre];
+        if (!url) {
+            console.error(`ژانر ${genre} پشتیبانی نمی‌شود`);
+            return null;
+        }
+        
+        const totalPages = TOTAL_PAGES[genre] || 5;
+        
+        console.log(`🔍 جستجوی فیلم ${id} در ژانر ${genre}، ${totalPages} صفحه`);
+        
+        // حلقه روی همه صفحات
+        for (let page = 1; page <= totalPages; page++) {
+            const apiUrl = url + page;
+            console.log(`📄 بررسی صفحه ${page}: ${apiUrl}`);
+            
+            const data = await fetchAPI(apiUrl);
+            
+            // همه APIها ساختار data.data.list.data دارند
+            let items = data?.data?.list?.data || [];
+            
+            // فیلتر کردن فقط فیلم‌ها
+            const movies = items.filter(item => item.type === 'movie');
+            
+            const found = movies.find(m => m.id == id);
+            if (found) {
+                console.log(`✅ فیلم در صفحه ${page} پیدا شد`);
+                return found;
+            }
+        }
+        
+        console.log(`❌ فیلم با id ${id} در ژانر ${genre} یافت نشد`);
+        return null;
+    }
+    
+    // توابع پخش
+    function playMovie(movieId, movieTitle) { 
+        window.location.href = `play.html?id=${movieId}&title=${encodeURIComponent(movieTitle)}`; 
+    }
+    
+    // امتیازدهی
+    function setRating(movieId, rating) { 
+        userRatings[movieId] = rating; 
+        localStorage.setItem("userRatings", JSON.stringify(userRatings)); 
+        document.querySelectorAll(".star-rating").forEach((s,i)=>{ 
+            if(i < rating) s.classList.add("active"); 
+            else s.classList.remove("active"); 
+        }); 
+        document.getElementById("ratingValue").innerHTML = `⭐ امتیاز شما: ${rating} از 5`; 
+    }
+    
+    // علاقه‌مندی
+    function toggleFavorite(movieId) { 
+        const idx = favorites.indexOf(movieId); 
+        if(idx === -1) favorites.push(movieId); 
+        else favorites.splice(idx,1); 
+        localStorage.setItem("favorites", JSON.stringify(favorites)); 
+        const btn = document.querySelector(".add-fav");
+        if(btn) {
+            if(idx === -1) {
+                btn.classList.add("active");
+                btn.innerHTML = "❤️ موجود در لیست";
+            } else {
+                btn.classList.remove("active");
+                btn.innerHTML = "🤍 افزودن به علاقه‌مندی";
+            }
+        }
+    }
+    
+    // نظرات
+    function addComment(movieId, userName, text) { 
+        if(!text.trim()) return; 
+        if(!comments[movieId]) comments[movieId]=[]; 
+        comments[movieId].unshift({
+            id:Date.now(),
+            user:userName,
+            text:text,
+            date:new Date().toLocaleDateString('fa-IR'),
+            time:new Date().toLocaleTimeString('fa-IR')
+        }); 
+        localStorage.setItem("comments", JSON.stringify(comments)); 
+        renderComments(movieId); 
+        document.getElementById("commentInput").value=''; 
+    }
+    
+    function renderComments(movieId) { 
+        const container = document.getElementById("commentsList"); 
+        if(!container) return;
+        const movieComments = comments[movieId] || []; 
+        if(movieComments.length === 0) { 
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:#8892b0">💬 هنوز نظری ثبت نشده است</div>'; 
+            return; 
+        } 
+        container.innerHTML = movieComments.map(c => `
+            <div class="comment-item">
+                <div class="comment-user">
+                    <strong>${escapeHtml(c.user)}</strong>
+                    <span class="comment-date">${c.date} - ${c.time}</span>
+                </div>
+                <div class="comment-text">${escapeHtml(c.text)}</div>
+            </div>
+        `).join(''); 
+    }
+    
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // نمایش اصلی جزئیات
+    async function displayMovie() {
+        const id = getParam('id'); 
+        const type = getParam('type') || 'movie'; 
+        let genre = getParam('genre') || 'animation';
+        const container = document.getElementById("detailContainer");
+        
+        if (!id) { container.innerHTML = '<div class="error">❌ شناسه معتبر نیست</div>'; return; }
+        container.innerHTML = '<div class="loading">⏳ بارگذاری اطلاعات...</div>';
+        
+        console.log(`🎯 شروع جستجو: id=${id}, genre=${genre}, type=${type}`);
+        
+        const movie = await fetchMovieById(id, genre, type);
+        if (!movie) { 
+            container.innerHTML = '<div class="error">❌ خطا در دریافت اطلاعات<br><small>لطفاً دوباره تلاش کنید</small></div>'; 
+            return; 
+        }
+        
+        const title = movie.name_fa || movie.name || 'بدون عنوان';
+        const year = movie.year || 'نامشخص';
+        const rating = (movie.rate || 0).toFixed(1);
+        const duration = movie.runtime ? `${Math.round(movie.runtime)} دقیقه` : 'نامشخص';
+        const genreRaw = movie.genre || (genre === 'animation' ? 'انیمیشن' : (genre === 'action' ? 'اکشن' : 'ماجراجویی'));
+        const genres = genreRaw.split(',').map(g => g.trim()).slice(0, 3);
+        const description = movie.overview_fa || movie.overview || 'توضیحاتی برای این اثر موجود نیست.';
+        const poster = getFullImageUrl(movie.poster);
+        const userRating = userRatings[id] || 0;
+        const isFav = favorites.includes(id);
+        const userName = localStorage.getItem("userName") || "کاربر مهمان";
+        
+        const genreNames = {
+            animation: 'انیمیشن', action: 'اکشن', adventure: 'ماجراجویی', comedy: 'کمدی',
+            crime: 'جنایی', drama: 'درام', family: 'خانوادگی', history: 'تاریخی',
+            horror: 'ترسناک', 'sci-fi': 'علمی تخیلی', romance: 'عاشقانه', thriller: 'هیجان‌انگیز'
+        };
+        
+        const html = `
+            <div class="detail-card">
+                <div>
+                    <img class="poster-img" src="${poster || 'https://placehold.co/400x560/1a1e30/white?text=' + encodeURIComponent(title)}" alt="${title}">
+                    <div class="info-box">
+                        <div class="rating">⭐ ${rating}</div>
+                        <div style="font-size:12px;margin-top:5px">از 10</div>
+                        <div class="user-rating-area">
+                            <div style="font-size:13px;margin-bottom:8px">⭐ امتیاز شما</div>
+                            <div class="stars-container" id="starsContainer">
+                                ${[1,2,3,4,5].map(i => `<span class="star-rating ${userRating >= i ? 'active' : ''}" data-rating="${i}">★</span>`).join('')}
+                            </div>
+                            <div id="ratingValue" style="font-size:12px;color:#ffc107;margin-top:5px">
+                                ${userRating > 0 ? `⭐ امتیاز شما: ${userRating} از 5` : 'هنوز امتیاز نداده‌اید'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="movie-title">${escapeHtml(title)}</h1>
+                    <div style="color:#8892b0; margin-bottom:10px">${escapeHtml(title)} (${year})</div>
+                    <div class="meta">
+                        <span>📅 ${year}</span>
+                        <span>🎬 ${duration}</span>
+                        <span>🎬 فیلم</span>
+                        ${genres.map(g => `<span>🔥 ${escapeHtml(g)}</span>`).join('')}
+                    </div>
+                    <div class="description">${escapeHtml(description)}</div>
+                    <div>
+                        <button class="watch-btn" onclick="playMovie('${id}', '${escapeHtml(title).replace(/'/g, "\\'")}')">▶ پخش آنلاین</button>
+                        <button class="add-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${id}')">
+                            ${isFav ? '❤️ موجود در لیست' : '🤍 افزودن به علاقه‌مندی'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="comments-section">
+                <h3>💬 نظرات کاربران</h3>
+                <div class="comment-form">
+                    <input type="text" id="commentInput" placeholder="نظر خود را بنویسید..." maxlength="500">
+                    <button onclick="addComment('${id}', '${escapeHtml(userName)}', document.getElementById('commentInput').value)">ارسال</button>
+                </div>
+                <div id="commentsList"></div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+        
+        document.querySelectorAll(".star-rating").forEach(star => {
+            star.onclick = () => setRating(id, parseInt(star.dataset.rating));
+        });
+        
+        renderComments(id);
+    }
+    
+    // تم (روز/شب) - هماهنگ با صفحه اصلی
+    function toggleTheme() { 
+        document.body.classList.toggle('light-mode'); 
+        const btn = document.getElementById('themeToggle'); 
+        if(btn) btn.innerHTML = document.body.classList.contains('light-mode') ? '☀️' : '🌙'; 
+        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); 
+    }
+    
+    const savedTheme = localStorage.getItem('theme'); 
+    if (savedTheme === 'light') { 
+        document.body.classList.add('light-mode'); 
+        const btn = document.getElementById('themeToggle');
+        if(btn) btn.innerHTML = '☀️';
+    }
+    
+    displayMovie();
+</script>
+</body>
+</html>
