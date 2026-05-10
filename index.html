@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MOVIELAND | فیلم و انیمیشن</title>
+    <meta name="theme-color" content="#0a0a12">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#0a0a12;font-family:system-ui,'Segoe UI',sans-serif;color:#fff;line-height:1.5}
+        body.light-mode{background:#f5f5f0;color:#1a1a2e}
+        body.light-mode .header,body.light-mode .movie-card,body.light-mode .modal-content{background:rgba(240,240,240,0.9);color:#1a1a2e}
+        
+        .header{position:sticky;top:0;z-index:100;background:rgba(10,10,18,0.92);backdrop-filter:blur(12px);padding:12px 24px;border-bottom:1px solid rgba(229,50,60,0.2)}
+        .header-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+        .nav-group{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+        .logo{display:flex;align-items:center;gap:8px;cursor:pointer}
+        .logo-icon{font-size:28px}
+        .logo-text{font-size:22px;font-weight:800;background:linear-gradient(135deg,#fff,#e5323c);-webkit-background-clip:text;background-clip:text;color:transparent}
+        .genres-btn{display:flex;align-items:center;gap:6px;background:rgba(25,28,45,0.8);padding:8px 16px;border-radius:40px;cursor:pointer;border:1px solid rgba(229,50,60,0.3);font-size:13px}
+        .genres-btn:hover{background:#e5323c}
+        .search-btn{background:rgba(25,28,45,0.8);border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;color:#fff;display:flex;align-items:center;justify-content:center}
+        .search-btn:hover{background:#e5323c;transform:scale(1.05)}
+        .theme-toggle{background:rgba(25,28,45,0.8);border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;color:#fff}
+        .theme-toggle:hover{background:#e5323c;transform:rotate(15deg)}
+        .user-buttons{display:flex;gap:10px}
+        .user-btn{background:rgba(25,28,45,0.8);border:none;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:16px;color:#fff}
+        .login-btn{background:linear-gradient(135deg,#e5323c,#ff6b6b);width:auto;padding:0 20px;border-radius:40px;font-weight:600}
+        
+        /* مودال جستجو */
+        .search-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);backdrop-filter:blur(20px);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease}
+        .search-modal.active{display:flex;opacity:1}
+        .search-modal-content{width:90%;max-width:850px;max-height:85vh;background:linear-gradient(145deg,#0f1222,#0a0c18);border-radius:40px;overflow:hidden;border:1px solid rgba(229,50,60,0.3);transform:scale(0.95);transition:transform 0.3s ease}
+        .search-modal.active .search-modal-content{transform:scale(1)}
+        .search-modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 25px;border-bottom:1px solid rgba(255,255,255,0.1)}
+        .search-modal-header h3{font-size:20px;display:flex;align-items:center;gap:8px;color:#e5323c}
+        .search-modal-close{background:rgba(255,255,255,0.1);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;color:#fff;font-size:18px;transition:0.2s}
+        .search-modal-close:hover{background:#e5323c;transform:rotate(90deg)}
+        .search-modal-body{padding:25px}
+        .search-input-wrapper{position:relative;margin-bottom:25px}
+        .search-input-wrapper input{width:100%;padding:15px 50px 15px 20px;border-radius:60px;border:1px solid rgba(255,255,255,0.1);background:rgba(25,28,45,0.8);color:#fff;font-size:15px;outline:none}
+        .search-input-wrapper input:focus{border-color:#e5323c;box-shadow:0 0 0 3px rgba(229,50,60,0.2)}
+        .search-input-wrapper .search-icon-input{position:absolute;right:20px;top:50%;transform:translateY(-50%);color:#5a6378;font-size:18px}
+        .search-results-modal{max-height:55vh;overflow-y:auto}
+        .search-result-item-modal{display:flex;align-items:center;gap:15px;padding:12px;cursor:pointer;transition:0.2s;border-radius:16px;margin-bottom:8px}
+        .search-result-item-modal:hover{background:rgba(229,50,60,0.15)}
+        .search-result-poster-modal{width:50px;height:70px;border-radius:12px;background-size:cover;background-position:center;background-color:#1a1e30}
+        .search-result-info-modal{flex:1}
+        .search-result-title-modal{font-size:15px;font-weight:600;margin-bottom:4px}
+        .search-result-meta-modal{display:flex;gap:12px;font-size:11px;color:#8892b0}
+        .search-result-rating-modal{background:rgba(255,193,7,0.15);padding:2px 8px;border-radius:20px;color:#ffc107;font-size:11px}
+        .search-loading-modal{text-align:center;padding:40px;color:#8892b0}
+        
+        /* مودال ژانرها */
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);z-index:1000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease}
+        .modal-overlay.active{display:flex;opacity:1}
+        .modal-content{background:linear-gradient(145deg,#0f1222,#0a0c18);border-radius:32px;width:90%;max-width:500px;max-height:80vh;overflow:hidden;border:1px solid rgba(229,50,60,0.3);transform:scale(0.95);transition:transform 0.3s ease}
+        .modal-overlay.active .modal-content{transform:scale(1)}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 25px;border-bottom:1px solid rgba(255,255,255,0.1)}
+        .modal-header h3{font-size:20px;display:flex;align-items:center;gap:8px;color:#e5323c}
+        .modal-close{background:rgba(255,255,255,0.1);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;color:#fff;font-size:18px;transition:0.2s}
+        .modal-close:hover{background:#e5323c}
+        .modal-body{padding:25px;max-height:calc(80vh - 80px);overflow-y:auto}
+        .modal-body::-webkit-scrollbar{width:4px}
+        .modal-body::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:10px}
+        .modal-body::-webkit-scrollbar-thumb{background:#e5323c;border-radius:10px}
+        
+        .genres-list{display:flex;flex-direction:column;gap:12px}
+        .genre-item{background:rgba(25,28,45,0.6);border:1px solid rgba(255,255,255,0.05);border-radius:60px;padding:14px 20px;cursor:pointer;transition:0.2s;font-size:16px;font-weight:500;color:#ddd;display:flex;align-items:center;gap:12px}
+        .genre-item:hover{background:rgba(229,50,60,0.2);transform:translateX(-5px)}
+        .genre-item.active{background:#e5323c;color:#fff}
+        .genre-icon{font-size:20px}
+        
+        .section-header{max-width:1400px;margin:40px auto 20px;padding:0 24px;display:flex;justify-content:space-between;align-items:center}
+        .section-header h2{font-size:22px;font-weight:700;display:flex;align-items:center;gap:8px}
+        .movies-grid{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:25px}
+        .movie-card{background:rgba(18,20,32,0.6);backdrop-filter:blur(8px);border-radius:20px;overflow:hidden;cursor:pointer;transition:all 0.3s ease;border:1px solid rgba(255,255,255,0.05)}
+        .movie-card:hover{transform:translateY(-6px);border-color:#e5323c}
+        .movie-poster{aspect-ratio:2/3;background-size:cover;background-position:center;position:relative}
+        .movie-rating{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);padding:4px 10px;border-radius:30px;font-size:12px;color:#ffc107}
+        .movie-info{padding:14px}
+        .movie-title{font-size:15px;font-weight:700;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .movie-genre{font-size:11px;color:#8892b0;margin-bottom:4px}
+        .movie-meta{display:flex;gap:12px;font-size:11px;color:#6a7080;margin-top:8px}
+        
+        .selected-genre-badge{background:rgba(229,50,60,0.15);padding:5px 12px;border-radius:30px;font-size:12px;color:#ff8888;cursor:pointer;width:fit-content;margin:0 24px 10px auto;display:flex;align-items:center;gap:6px}
+        .loading-state{text-align:center;padding:60px;color:#8892b0}
+        .load-more-btn{display:block;margin:30px auto;padding:14px 40px;background:linear-gradient(135deg,#e5323c,#ff6b6b);color:white;border:none;border-radius:60px;font-size:16px;font-weight:600;cursor:pointer;transition:0.2s;box-shadow:0 4px 15px rgba(229,50,60,0.3)}
+        .load-more-btn:hover{transform:scale(1.02)}
+        .load-more-info{text-align:center;color:#8892b0;font-size:13px;margin:15px auto;padding:10px}
+        .scroll-top{position:fixed;bottom:30px;right:30px;background:#e5323c;color:white;width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transition:0.3s;z-index:99;border:none;font-size:20px}
+        .scroll-top.show{opacity:1;visibility:visible}
+        footer{text-align:center;padding:30px;border-top:1px solid rgba(255,255,255,0.05);color:#5a6378;font-size:12px;margin-top:30px}
+        
+        @media (max-width:768px){
+            .nav-group{width:100%;justify-content:space-between}
+            .movies-grid{gap:15px;grid-template-columns:repeat(auto-fill,minmax(155px,1fr))}
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-in">
+        <div class="nav-group">
+            <div class="logo" onclick="location.reload()">
+                <span class="logo-icon">🎬</span>
+                <span class="logo-text">MOVIELAND</span>
+            </div>
+            <div class="genres-btn" id="openGenresModal">🎭 ژانرها ▼</div>
+            <button class="search-btn" id="openSearchModal">🔍</button>
+        </div>
+        <div class="user-buttons">
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+            <button class="user-btn login-btn" id="authBtn">👤 ورود</button>
+        </div>
+    </div>
+</div>
+
+<!-- مودال جستجو -->
+<div class="search-modal" id="searchModal">
+    <div class="search-modal-content">
+        <div class="search-modal-header">
+            <h3>🔍 جستجوی فیلم و انیمیشن</h3>
+            <button class="search-modal-close" id="closeSearchModal">✕</button>
+        </div>
+        <div class="search-modal-body">
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInputModal" placeholder="عنوان فیلم، انیمیشن، بازیگر...">
+                <span class="search-icon-input">🔍</span>
+            </div>
+            <div class="search-results-modal" id="searchResultsModal">
+                <div class="search-loading-modal">🔍 نام فیلم یا انیمیشن را وارد کنید...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مودال ژانرها -->
+<div class="modal-overlay" id="genresModal">
+    <div class="modal-content">
+        <div class="modal-header"><h3>🎭 انتخاب ژانر</h3><button class="modal-close" id="closeGenresModal">✕</button></div>
+        <div class="modal-body"><div class="genres-list" id="genresList"></div></div>
+    </div>
+</div>
+
+<div class="section-header"><h2 id="sectionTitle"><span>✨</span> انیمیشن‌ها</h2></div>
+<div class="selected-genre-badge" id="selectedGenreBadge" style="display:none"></div>
+<div class="movies-grid" id="moviesGrid"><div class="loading-state">⏳ در حال بارگذاری...</div></div>
+<div id="loadMoreContainer" style="text-align:center"></div>
+
+<button class="scroll-top" id="scrollTopBtn">⬆️</button>
+<footer>© 2024 MOVIELAND | فیلم و انیمیشن از سرویس upera.tv</footer>
+
+<script>
+    // ---------- API های فیلم و انیمیشن (بر اساس اطلاعات جدید) ----------
+    const ANIMATION_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/animation?page=';
+    const ACTION_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/action?page=';
+    const ADVENTURE_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/adventure?page=';
+    const COMEDY_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/comedy?page=';
+    const CRIME_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/crime?page=';
+    const DRAMA_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/drama?page=';
+    const FAMILY_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/family?page=';
+    const HISTORY_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/history?page=';
+    const HORROR_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/horror?page=';
+    const SCI_FI_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/sci_fi?page=';
+    const ROMANCE_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/romance?page=';
+    const THRILLER_API = 'https://provider.upera.tv/api/v1/ghost/get/get_listV3/thriller?page=';
+    
+    // تعداد صفحات هر ژانر (بر اساس اطلاعات شما)
+    const TOTAL_PAGES = {
+        animation: 51,
+        action: 119,
+        adventure: 79,
+        comedy: 89,
+        crime: 59,
+        drama: 170,
+        family: 55,
+        history: 15,
+        horror: 31,
+        'sci-fi': 24,
+        romance: 23,
+        thriller: 58
+    };
+    
+    const CDN_BASE = 'https://thumb.upera.tv/thumb?w=675&q=90&h=1000&src=https://thumb.upera.tv/s3/posters/';
+    
+    let currentMode = 'animation';
+    let currentPage = 1;
+    let totalPages = TOTAL_PAGES.animation;
+    let allItems = [];
+    let isLoading = false;
+    let hasMore = true;
+
+    function getFullImageUrl(posterPath) {
+        if (!posterPath) return null;
+        if (posterPath.startsWith('http')) return posterPath;
+        return CDN_BASE + posterPath;
+    }
+
+    async function fetchAPI(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            return data;
+        } catch (err) {
+            console.error('Fetch error:', err);
+            return null;
+        }
+    }
+    
+    // ========== بارگذاری صفحه بر اساس حالت ==========
+    async function loadPage(page) {
+        let url;
+        switch(currentMode) {
+            case 'animation': url = ANIMATION_API + page; break;
+            case 'action': url = ACTION_API + page; break;
+            case 'adventure': url = ADVENTURE_API + page; break;
+            case 'comedy': url = COMEDY_API + page; break;
+            case 'crime': url = CRIME_API + page; break;
+            case 'drama': url = DRAMA_API + page; break;
+            case 'family': url = FAMILY_API + page; break;
+            case 'history': url = HISTORY_API + page; break;
+            case 'horror': url = HORROR_API + page; break;
+            case 'sci-fi': url = SCI_FI_API + page; break;
+            case 'romance': url = ROMANCE_API + page; break;
+            case 'thriller': url = THRILLER_API + page; break;
+            default: return [];
+        }
+        
+        const data = await fetchAPI(url);
+        
+        // همه APIها ساختار data.data.list.data دارند
+        let items = data?.data?.list?.data || [];
+        
+        // فیلتر کردن فقط فیلم‌ها (حذف سریال‌ها)
+        const moviesOnly = items.filter(item => item.type === 'movie');
+        
+        return moviesOnly;
+    }
+    
+    // ========== جستجو در تمام صفحات (همه ژانرها) با حذف موارد تکراری ==========
+    async function searchAllPages(query) {
+        const resultsMap = new Map(); // استفاده از Map برای حذف duplicates
+        const lowerQuery = query.toLowerCase();
+        
+        // تابع کمکی برای جستجو در یک ژانر خاص
+        async function searchGenre(apiUrl, genreName, totalPagesCount) {
+            for (let page = 1; page <= totalPagesCount; page++) {
+                const data = await fetchAPI(apiUrl + page);
+                const items = data?.data?.list?.data || [];
+                // فقط فیلم‌ها و مطابق با جستجو
+                const filtered = items.filter(item => 
+                    item.type === 'movie' && (
+                        (item.name_fa && item.name_fa.toLowerCase().includes(lowerQuery)) || 
+                        (item.name && item.name.toLowerCase().includes(lowerQuery))
+                    )
+                );
+                
+                // اضافه کردن به Map با کلید یکسان (برای حذف duplicates)
+                filtered.forEach(m => {
+                    const key = m.id; // استفاده از id به عنوان کلید یکتا
+                    if (!resultsMap.has(key)) {
+                        resultsMap.set(key, { ...m, _genre: genreName });
+                    }
+                });
+                
+                if (resultsMap.size > 100) break;
+            }
+        }
+        
+        // جستجو در همه ژانرها
+        await searchGenre(ANIMATION_API, 'animation', TOTAL_PAGES.animation);
+        await searchGenre(ACTION_API, 'action', TOTAL_PAGES.action);
+        await searchGenre(ADVENTURE_API, 'adventure', TOTAL_PAGES.adventure);
+        await searchGenre(COMEDY_API, 'comedy', TOTAL_PAGES.comedy);
+        await searchGenre(CRIME_API, 'crime', TOTAL_PAGES.crime);
+        await searchGenre(DRAMA_API, 'drama', TOTAL_PAGES.drama);
+        await searchGenre(FAMILY_API, 'family', TOTAL_PAGES.family);
+        await searchGenre(HISTORY_API, 'history', TOTAL_PAGES.history);
+        await searchGenre(HORROR_API, 'horror', TOTAL_PAGES.horror);
+        await searchGenre(SCI_FI_API, 'sci-fi', TOTAL_PAGES['sci-fi']);
+        await searchGenre(ROMANCE_API, 'romance', TOTAL_PAGES.romance);
+        await searchGenre(THRILLER_API, 'thriller', TOTAL_PAGES.thriller);
+        
+        // تبدیل Map به آرایه و برگرداندن حداکثر 50 نتیجه
+        return Array.from(resultsMap.values()).slice(0, 50);
+    }
+    
+    // ========== جستجو در مودال ==========
+    let searchTimeout;
+    const searchModal = document.getElementById('searchModal');
+    const searchInputModal = document.getElementById('searchInputModal');
+    const searchResultsModal = document.getElementById('searchResultsModal');
+    
+    async function performSearch(query) {
+        if (!query.trim()) {
+            searchResultsModal.innerHTML = '<div class="search-loading-modal">🔍 نام فیلم یا انیمیشن را وارد کنید...</div>';
+            return;
+        }
+        
+        searchResultsModal.innerHTML = '<div class="search-loading-modal">🔍 در حال جستجو در تمام صفحات...</div>';
+        
+        try {
+            const results = await searchAllPages(query);
+            
+            if (results.length === 0) {
+                searchResultsModal.innerHTML = '<div class="search-loading-modal">❌ نتیجه‌ای یافت نشد</div>';
+                return;
+            }
+            
+            const genreNames = {
+                animation: 'انیمیشن', action: 'اکشن', adventure: 'ماجراجویی', comedy: 'کمدی',
+                crime: 'جنایی', drama: 'درام', family: 'خانوادگی', history: 'تاریخی',
+                horror: 'ترسناک', 'sci-fi': 'علمی تخیلی', romance: 'عاشقانه', thriller: 'هیجان‌انگیز'
+            };
+            
+            // نمایش تعداد نتایج منحصر به فرد
+            const resultCount = results.length;
+            const countHtml = `<div style="padding: 8px 16px; background: rgba(229,50,60,0.1); border-radius: 30px; margin-bottom: 12px; font-size: 12px; text-align: center;">🎯 ${resultCount} نتیجه یافت شد</div>`;
+            
+            searchResultsModal.innerHTML = countHtml + results.map(item => {
+                const poster = getFullImageUrl(item.poster) || '';
+                const genre = item._genre || 'animation';
+                const rating = (item.rate || 0).toFixed(1);
+                const year = item.year || 'نامشخص';
+                
+                return `
+                    <div class="search-result-item-modal" onclick="location.href='m.html?id=${item.id}&type=movie&genre=${genre}'">
+                        <div class="search-result-poster-modal" style="background-image: url('${poster}'); background-size: cover;"></div>
+                        <div class="search-result-info-modal">
+                            <div class="search-result-title-modal">${escapeHtml(item.name_fa || item.name)}</div>
+                            <div class="search-result-meta-modal">
+                                <span>📅 ${year}</span>
+                                <span>🎬 ${genreNames[genre] || 'فیلم'}</span>
+                            </div>
+                        </div>
+                        <div class="search-result-rating-modal">⭐ ${rating}</div>
+                    </div>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error('خطا در جستجو:', err);
+            searchResultsModal.innerHTML = '<div class="search-loading-modal">⚠️ خطا در جستجو</div>';
+        }
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    searchInputModal.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value;
+        searchTimeout = setTimeout(() => performSearch(query), 500);
+    });
+    
+    document.getElementById('openSearchModal').onclick = () => {
+        searchModal.classList.add('active');
+        searchInputModal.value = '';
+        searchResultsModal.innerHTML = '<div class="search-loading-modal">🔍 نام فیلم یا انیمیشن را وارد کنید...</div>';
+        setTimeout(() => searchInputModal.focus(), 100);
+    };
+    document.getElementById('closeSearchModal').onclick = () => searchModal.classList.remove('active');
+    searchModal.onclick = (e) => { if (e.target === searchModal) searchModal.classList.remove('active'); };
+    
+    // ========== بارگذاری اصلی ==========
+    async function loadItems(reset = true) {
+        if (isLoading) return;
+        isLoading = true;
+        
+        if (reset) {
+            currentPage = 1;
+            allItems = [];
+            hasMore = true;
+            document.getElementById('moviesGrid').innerHTML = '<div class="loading-state">⏳ در حال بارگذاری...</div>';
+            document.getElementById('loadMoreContainer').innerHTML = '';
+        }
+        
+        try {
+            const newItems = await loadPage(currentPage);
+            
+            if (reset) {
+                allItems = newItems;
+            } else {
+                allItems = [...allItems, ...newItems];
+            }
+            
+            renderItems(allItems);
+            
+            if (currentPage >= totalPages || newItems.length === 0) {
+                hasMore = false;
+                document.getElementById('loadMoreContainer').innerHTML = '<div class="load-more-info">✨ به انتهای لیست رسیدید ✨</div>';
+            } else {
+                const nextPage = currentPage + 1;
+                document.getElementById('loadMoreContainer').innerHTML = `<button class="load-more-btn" id="loadMoreBtn">📽️ مشاهده بیشتر (صفحه ${nextPage} از ${totalPages})</button>`;
+                const newBtn = document.getElementById('loadMoreBtn');
+                if (newBtn) {
+                    newBtn.onclick = () => {
+                        currentPage++;
+                        loadItems(false);
+                    };
+                }
+            }
+        } catch (err) {
+            console.error('خطا:', err);
+            document.getElementById('moviesGrid').innerHTML = '<div class="error-state">❌ خطا در دریافت اطلاعات</div>';
+        } finally {
+            isLoading = false;
+        }
+    }
+    
+    function renderItems(items) {
+        const grid = document.getElementById('moviesGrid');
+        if (!items.length) {
+            grid.innerHTML = '<div class="loading-state">❌ فیلمی یافت نشد</div>';
+            return;
+        }
+        
+        const modeNames = {
+            animation: 'انیمیشن', action: 'اکشن', adventure: 'ماجراجویی', comedy: 'کمدی',
+            crime: 'جنایی', drama: 'درام', family: 'خانوادگی', history: 'تاریخی',
+            horror: 'ترسناک', 'sci-fi': 'علمی تخیلی', romance: 'عاشقانه', thriller: 'هیجان‌انگیز'
+        };
+        
+        grid.innerHTML = items.map(item => {
+            const poster = getFullImageUrl(item.poster) || `https://placehold.co/300x420/1a1e30/white?text=${encodeURIComponent(item.name_fa || item.name || 'فیلم')}`;
+            const rating = (item.rate || 0).toFixed(1);
+            const year = item.year || 'نامشخص';
+            
+            return `
+                <div class="movie-card" onclick="location.href='m.html?id=${item.id}&type=movie&genre=${currentMode}'">
+                    <div class="movie-poster" style="background-image: url('${poster}');">
+                        <div class="movie-rating">⭐ ${rating}</div>
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-title">${escapeHtml((item.name_fa || item.name).substring(0, 35))}</div>
+                        <div class="movie-genre">${modeNames[currentMode] || 'فیلم'}</div>
+                        <div class="movie-meta"><span>📅 ${year}</span><span>🎬 فیلم</span></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // ========== تغییر حالت ==========
+    async function changeMode(mode) {
+        currentMode = mode;
+        currentPage = 1;
+        hasMore = true;
+        totalPages = TOTAL_PAGES[mode] || 1;
+        
+        const modeConfig = {
+            animation: { title: 'انیمیشن‌ها', icon: '✨', badge: false },
+            action: { title: 'فیلم‌های اکشن', icon: '💥', badge: true },
+            adventure: { title: 'ماجراجویی', icon: '🏔️', badge: true },
+            comedy: { title: 'کمدی', icon: '😂', badge: true },
+            crime: { title: 'جنایی', icon: '👮', badge: true },
+            drama: { title: 'درام', icon: '🎭', badge: true },
+            family: { title: 'خانوادگی', icon: '👪', badge: true },
+            history: { title: 'تاریخی', icon: '🏛️', badge: true },
+            horror: { title: 'ترسناک', icon: '🔪', badge: true },
+            'sci-fi': { title: 'علمی تخیلی', icon: '🚀', badge: true },
+            romance: { title: 'عاشقانه', icon: '💕', badge: true },
+            thriller: { title: 'هیجان‌انگیز', icon: '🔫', badge: true }
+        };
+        
+        const config = modeConfig[mode] || { title: 'فیلم‌ها', icon: '🎬', badge: true };
+        
+        document.getElementById('sectionTitle').innerHTML = `<span>${config.icon}</span> ${config.title}`;
+        
+        const badge = document.getElementById('selectedGenreBadge');
+        if (!config.badge || mode === 'animation') {
+            badge.style.display = 'none';
+        } else {
+            badge.style.display = 'flex';
+            badge.innerHTML = `${config.title} <span>✕</span>`;
+            badge.onclick = () => changeMode('animation');
+        }
+        
+        await loadItems(true);
+    }
+    
+    // ========== مودال ژانرها ==========
+    function renderGenresList() {
+        const genres = [
+            { id: 'animation', name: 'انیمیشن', icon: '🎬' },
+            { id: 'action', name: 'اکشن', icon: '💥' },
+            { id: 'adventure', name: 'ماجراجویی', icon: '🏔️' },
+            { id: 'comedy', name: 'کمدی', icon: '😂' },
+            { id: 'crime', name: 'جنایی', icon: '👮' },
+            { id: 'drama', name: 'درام', icon: '🎭' },
+            { id: 'family', name: 'خانوادگی', icon: '👪' },
+            { id: 'history', name: 'تاریخی', icon: '🏛️' },
+            { id: 'horror', name: 'ترسناک', icon: '🔪' },
+            { id: 'sci-fi', name: 'علمی تخیلی', icon: '🚀' },
+            { id: 'romance', name: 'عاشقانه', icon: '💕' },
+            { id: 'thriller', name: 'هیجان‌انگیز', icon: '🔫' }
+        ];
+        
+        document.getElementById('genresList').innerHTML = genres.map(g => `
+            <div class="genre-item ${currentMode === g.id ? 'active' : ''}" data-mode="${g.id}">
+                <span class="genre-icon">${g.icon}</span>
+                <span>${g.name}</span>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.genre-item').forEach(item => {
+            item.addEventListener('click', () => {
+                changeMode(item.dataset.mode);
+                document.getElementById('genresModal').classList.remove('active');
+            });
+        });
+    }
+    
+    // ========== تم و دکمه‌ها ==========
+    function toggleTheme() { 
+        document.body.classList.toggle('light-mode'); 
+        const btn = document.getElementById('themeToggle'); 
+        btn.innerHTML = document.body.classList.contains('light-mode') ? '☀️' : '🌙'; 
+        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark'); 
+    }
+    
+    function updateAuthButton() { 
+        const isLogged = localStorage.getItem('isLoggedIn') === 'true'; 
+        const authBtn = document.getElementById('authBtn'); 
+        if (isLogged) { 
+            authBtn.innerHTML = '👤 پروفایل'; 
+            authBtn.onclick = () => window.location.href = 'settings.html'; 
+        } else { 
+            authBtn.innerHTML = '👤 ورود'; 
+            authBtn.onclick = () => window.location.href = 'login.html'; 
+        } 
+    }
+    
+    window.addEventListener('scroll', () => { 
+        const btn = document.getElementById('scrollTopBtn'); 
+        if (document.documentElement.scrollTop > 300) btn.classList.add('show'); 
+        else btn.classList.remove('show'); 
+    });
+    document.getElementById('scrollTopBtn').onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    const modal = document.getElementById('genresModal');
+    document.getElementById('openGenresModal').onclick = () => { renderGenresList(); modal.classList.add('active'); };
+    document.getElementById('closeGenresModal').onclick = () => modal.classList.remove('active');
+    modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+    
+    document.getElementById('themeToggle').onclick = toggleTheme;
+    
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') { 
+        document.body.classList.add('light-mode'); 
+        document.getElementById('themeToggle').innerHTML = '☀️'; 
+    }
+    
+    updateAuthButton();
+    changeMode('animation');
+</script>
+</body>
+</html>
